@@ -1,0 +1,4 @@
+rootProject.name = 'boardx'
+
+include('backend')
+include('backend:article', 'backend:article-read', 'backend:comment', 'backend:common', 'backend:hot-article', 'backend:like', 'backend:view')
