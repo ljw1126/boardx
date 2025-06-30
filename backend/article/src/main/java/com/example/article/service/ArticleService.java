@@ -63,4 +63,19 @@ public class ArticleService {
         boardArticleCountRepository.decrease(article.getBoardId());
     }
 
+    @Transactional(readOnly = true)
+    public List<ArticleResponse> readAllInfiniteScroll(Long boardId, Long pageSize, Long lastArticleId) {
+        List<Article> articles = lastArticleId == null ?
+                articleRepository.readAllInfiniteScroll(boardId, pageSize)
+                : articleRepository.readAllInfiniteScroll(boardId, pageSize, lastArticleId);
+
+        return articles.stream().map(ArticleResponse::from).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public Long count(Long boardId) {
+        return boardArticleCountRepository.findById(boardId)
+                .map(BoardArticleCount::getArticleCount)
+                .orElse(0L);
+    }
 }

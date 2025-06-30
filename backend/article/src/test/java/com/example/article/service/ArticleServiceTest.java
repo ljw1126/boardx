@@ -152,4 +152,31 @@ class ArticleServiceTest {
         return Article.create(articleId, "제목", "콘텐츠", 1L, 1L);
     }
 
+    @Test
+    void readAllInfiniteScrollWhenLastArticleIdIsNull() {
+        Long boardId = 1L;
+        Long pageSize = 10L;
+
+        when(articleRepository.readAllInfiniteScroll(boardId, pageSize))
+                .thenReturn(List.of(create(boardId)));
+
+        List<ArticleResponse> articleResponses = articleService.readAllInfiniteScroll(boardId, pageSize, null);
+
+        assertThat(articleResponses).hasSize(1);
+        verify(articleRepository, times(1)).readAllInfiniteScroll(boardId, pageSize);
+    }
+
+    @Test
+    void readAllInfiniteScrollWhenLastArticleIdIsNotNull() {
+        Long boardId = 1L;
+        Long pageSize = 10L;
+        Long lastArticleId = 40L;
+        when(articleRepository.readAllInfiniteScroll(boardId, pageSize, lastArticleId))
+                .thenReturn(List.of(create(boardId)));
+
+        List<ArticleResponse> articleResponses = articleService.readAllInfiniteScroll(boardId, pageSize, lastArticleId);
+
+        assertThat(articleResponses).hasSize(1);
+        verify(articleRepository, times(1)).readAllInfiniteScroll(boardId, pageSize, lastArticleId);
+    }
 }
