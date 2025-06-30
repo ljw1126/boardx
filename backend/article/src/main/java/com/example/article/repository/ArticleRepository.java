@@ -29,4 +29,27 @@ public interface ArticleRepository extends JpaRepository<Article, Long> {
             ") t",
             nativeQuery = true)
     Long count(@Param("boardId") Long boardId, @Param("limit") Long limit);
+
+    @Query(
+        value = " select * from article " +
+                " where board_id = :boardId " +
+                " order by article_id desc limit :limit" ,
+        nativeQuery = true
+    )
+    List<Article> readAllInfiniteScroll(
+            @Param("boardId") Long boardId,
+            @Param("limit") Long limit
+    );
+
+    @Query(
+            value = " select * from article " +
+                    " where board_id = :boardId and article_id < :lastArticleId " +
+                    " order by article_id desc limit :limit" ,
+            nativeQuery = true
+    )
+    List<Article> readAllInfiniteScroll(
+            @Param("boardId") Long boardId,
+            @Param("limit") Long limit,
+            @Param("lastArticleId") Long lastArticleId
+    );
 }

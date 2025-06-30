@@ -1,7 +1,6 @@
 package com.example.article.repository;
 
 import com.example.article.entity.Article;
-import com.example.snowflake.Snowflake;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,6 +54,22 @@ class ArticleRepositoryTest {
         Long count = articleRepository.count(1L, 101L);
 
         assertThat(count).isEqualTo(100);
+    }
+
+    @Test
+    void firstReadAllInfiniteScroll() {
+        List<Article> articles = articleRepository.readAllInfiniteScroll(1L, 10L);
+
+        assertThat(articles).hasSize(10);
+    }
+
+    @Test
+    void secondReadAllInfiniteScroll() {
+        List<Article> articles = articleRepository.readAllInfiniteScroll(1L, 10L, 40L);
+
+        assertThat(articles).hasSize(10);
+        assertThat(articles).extracting(Article::getArticleId)
+                .allMatch(articleId-> articleId < 40);
     }
 
 }
