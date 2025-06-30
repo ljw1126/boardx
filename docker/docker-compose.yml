@@ -1,0 +1,21 @@
+version: '3'
+services:
+  mysql:
+    container_name: board-mysql
+    image: mysql:8.0.38
+    command: mysqld --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --explicit_defaults_for_timestamp=1
+    ports:
+      - 3306:3306
+    environment:
+      - MYSQL_ROOT_PASSWORD=1234
+      - MYSQL_DATABASE=board
+      - MYSQL_USER=tester
+      - MYSQL_PASSWORD=1234
+      - TZ=UTC
+    volumes:
+      - ./mysql/init:/docker-entrypoint-initdb.d
+  redis:
+    image: redis:7.4
+    container_name: board-redis
+    ports:
+      - "6379:6379"
