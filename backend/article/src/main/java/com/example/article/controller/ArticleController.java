@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class ArticleController {
@@ -50,5 +52,13 @@ public class ArticleController {
     public ResponseEntity<Void> delete(@PathVariable Long articleId) {
         articleService.delete(articleId);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/v1/article/infinite-scroll")
+    public ResponseEntity<List<ArticleResponse>> readAllInfiniteScroll(@RequestParam("boardId") Long boardId,
+                                                                       @RequestParam("pageSize") Long pageSize,
+                                                                       @RequestParam(value = "lastArticleId", required = false) Long lastArticleId
+    ) {
+        return ResponseEntity.ok(articleService.readAllInfiniteScroll(boardId, pageSize, lastArticleId));
     }
 }

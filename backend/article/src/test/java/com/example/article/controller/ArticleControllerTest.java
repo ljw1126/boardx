@@ -4,6 +4,8 @@ import com.example.article.entity.Article;
 import com.example.article.repository.ArticleRepository;
 import com.example.article.service.request.ArticleCreateRequest;
 import com.example.article.service.request.ArticleUpdateRequest;
+import com.example.article.service.response.ArticleResponse;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -132,5 +135,41 @@ class ArticleControllerTest {
 
         boolean exists = articleRepository.findById(articleId).isPresent();
         assertThat(exists).isFalse();
+    }
+
+    @Test
+    void firstReadAllInfiniteScrollTest() throws Exception {
+        String boardId = "1";
+        String pageSize = "10"; // 51개가 있어야 페이징 버튼 10개 출력
+
+        mockMvc.perform(get("/v1/article/infinite-scroll")
+                        .param("boardId", boardId)
+                        .param("pageSize", pageSize)
+                        .param("lastArticleId", "")
+                ).andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.size()").value(10)
+                );
+    }
+
+    @Test
+    void secondReadAllInfiniteScrollTest() throws Exception {
+        String boardId = "1";
+        String pageSize = "10";
+        String lastArticleId = "90"; // 100번부터 내림차순 출력
+
+        MvcResult result = mockMvc.perform(get("/v1/article/infinite-scroll")
+                        .param("boardId", boardId)
+                        .param("pageSize", pageSize)
+                        .param("lastArticleId", lastArticleId)
+                ).andExpect(status().isOk())
+                .andReturn();
+
+        String content = result.getResponse().getContentAsString();
+        List<ArticleResponse> articles = objectMapper.readValue(content, new TypeReference<>() {});
+
+        for(ArticleResponse article : articles) {
+            assertThat(article.getArticleId()).isLessThan(90);
+        }
     }
 }
