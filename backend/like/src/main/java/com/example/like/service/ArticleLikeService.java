@@ -26,20 +26,23 @@ public class ArticleLikeService {
                 .orElseThrow();
     }
 
+    // select .. for update + update
     public void like(Long articleId, Long userId) {
         articleLikeRepository.save(ArticleLike.of(snowflake.nextId(), articleId, userId));
 
-        int result = articleLikeCountRepository.increase(articleId);
-        if (result == 0) {
-            articleLikeCountRepository.save(ArticleLikeCount.of(articleId, 1L));
-        }
+        ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId)
+                .orElseGet(() -> ArticleLikeCount.of(articleId, 0L));
+
+        articleLikeCount.increase();
+        articleLikeCountRepository.save(articleLikeCount);
     }
 
     public void unlike(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
                     articleLikeRepository.delete(articleLike);
-                    articleLikeCountRepository.decrease(articleId);
+                    ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId).orElseThrow();
+                    articleLikeCount.decrease();
                 });
     }
 

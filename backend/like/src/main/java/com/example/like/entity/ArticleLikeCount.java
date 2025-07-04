@@ -23,4 +23,12 @@ public class ArticleLikeCount {
         articleLikeCount.likeCount = likeCount;
         return articleLikeCount;
     }
+
+    public void increase() {
+        this.likeCount += 1;
+    }
+
+    public void decrease() {
+        this.likeCount -= 1;
+    }
 }
