@@ -10,14 +10,11 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
-import java.util.concurrent.atomic.AtomicInteger;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest
@@ -41,41 +38,26 @@ class ArticleLikeServiceTest {
     }
 
     @Test
-    void likeWithoutRetry() throws InterruptedException {
+    void like() throws InterruptedException {
         int threadCount = 1000;
         ExecutorService executorService = Executors.newFixedThreadPool(10);
+        CountDownLatch latch = new CountDownLatch(threadCount);
 
-        List<Callable<Void>> tasks = new ArrayList<>();
+        long start = System.currentTimeMillis();
         for (int i = 2; i <= threadCount + 1; i++) {
             long userId = i;
-            tasks.add(() -> {
+            executorService.submit(() -> {
                 articleLikeService.like(1L, userId);
-                return null;
+                latch.countDown();
             });
         }
 
-        long start = System.currentTimeMillis();
-
-        List<Future<Void>> futures = executorService.invokeAll(tasks);
-
-        AtomicInteger success = new AtomicInteger();
-        AtomicInteger failure = new AtomicInteger();
-
-        for (Future<Void> f : futures) {
-            try {
-                f.get();
-                success.incrementAndGet();
-            } catch (ExecutionException e) {
-                failure.incrementAndGet();
-            }
-        }
+        latch.await();
 
         long end = System.currentTimeMillis();
-
-        System.out.println("success : " + success.get() + ", failure : " + failure.get());
         System.out.println((end - start) + "ms");
 
         ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(1L).get();
-        System.out.println(articleLikeCount.getLikeCount());
+        assertThat(articleLikeCount.getLikeCount()).isEqualTo(threadCount);
     }
 }
