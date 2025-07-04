@@ -7,10 +7,6 @@ import com.example.like.repository.ArticleLikeRepository;
 import com.example.like.service.response.ArticleLikeResponse;
 import com.example.snowflake.Snowflake;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.StaleObjectStateException;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,11 +26,6 @@ public class ArticleLikeService {
                 .orElseThrow();
     }
 
-    @Retryable(
-            retryFor = {ObjectOptimisticLockingFailureException.class, StaleObjectStateException.class},
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 100)
-    )
     public void like(Long articleId, Long userId) {
         articleLikeRepository.save(ArticleLike.of(snowflake.nextId(), articleId, userId));
 
@@ -45,11 +36,6 @@ public class ArticleLikeService {
         articleLikeCountRepository.save(articleLikeCount);
     }
 
-    @Retryable(
-            retryFor = {ObjectOptimisticLockingFailureException.class},
-            maxAttempts = 3,
-            backoff = @Backoff(delay = 100)
-    )
     public void unlike(Long articleId, Long userId) {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
