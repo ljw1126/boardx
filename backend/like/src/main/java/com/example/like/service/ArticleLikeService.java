@@ -26,11 +26,10 @@ public class ArticleLikeService {
                 .orElseThrow();
     }
 
-    // select .. for update + update
     public void like(Long articleId, Long userId) {
         articleLikeRepository.save(ArticleLike.of(snowflake.nextId(), articleId, userId));
 
-        ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId)
+        ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId)
                 .orElseGet(() -> ArticleLikeCount.of(articleId, 0L));
 
         articleLikeCount.increase();
@@ -41,7 +40,7 @@ public class ArticleLikeService {
         articleLikeRepository.findByArticleIdAndUserId(articleId, userId)
                 .ifPresent(articleLike -> {
                     articleLikeRepository.delete(articleLike);
-                    ArticleLikeCount articleLikeCount = articleLikeCountRepository.findLockedByArticleId(articleId).orElseThrow();
+                    ArticleLikeCount articleLikeCount = articleLikeCountRepository.findById(articleId).orElseThrow();
                     articleLikeCount.decrease();
                 });
     }
