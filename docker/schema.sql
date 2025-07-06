@@ -75,3 +75,11 @@ create table article_like_count (
    article_id bigint not null primary key,
    like_count bigint not null
 );
+
+-- 게시글 조회수
+create database article_view;
+
+create table article_view_count (
+    article_id bigint not null primary key,
+    view_count bigint not null
+);
