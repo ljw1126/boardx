@@ -2,4 +2,4 @@ rootProject.name = 'boardx'
 
 include('backend')
 include('backend:article', 'backend:article-read', 'backend:comment', 'backend:hot-article', 'backend:like', 'backend:view')
-include('backend:common', 'backend:common:snowflake', 'backend:common:support')
+include('backend:common', 'backend:common:snowflake', 'backend:common:support', 'backend:common:data-serializer', 'backend:common:event')
