@@ -3,3 +3,8 @@ server:
 spring:
   application:
     name: article-view-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
