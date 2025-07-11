@@ -1,15 +1,19 @@
 package com.example.hotarticle.repository;
 
 import com.example.hotarticle.EmbeddedRedis;
+import com.example.hotarticle.config.KafkaConfig;
+import com.example.hotarticle.consumer.HotArticleEventConsumer;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,8 +23,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 @SpringBootTest
 class HotArticleListRepositoryTest {
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyyMMdd");
+
     @Autowired
     private HotArticleListRepository hotArticleListRepository;
+
+    // kafka 로그 제거
+    @MockitoBean
+    private KafkaConfig kafkaConfig;
+
+    @MockitoBean
+    private HotArticleEventConsumer hotArticleEventConsumer;
 
     @Test
     void add() {
@@ -33,7 +46,7 @@ class HotArticleListRepositoryTest {
             hotArticleListRepository.add(articleId, now, (long) i, limit, ttl);
         }
 
-        List<Long> result = hotArticleListRepository.readAll(now);
+        List<Long> result = hotArticleListRepository.readAll(FORMATTER.format(now));
 
         assertThat(result).hasSize(5)
                 .containsExactly(10L, 9L, 8L, 7L, 6L);
@@ -53,7 +66,7 @@ class HotArticleListRepositoryTest {
 
         hotArticleListRepository.remove(1L, now);
 
-        List<Long> result = hotArticleListRepository.readAll(now);
+        List<Long> result = hotArticleListRepository.readAll(FORMATTER.format(now));
 
         assertThat(result).hasSize(4)
                 .containsExactly(5L, 4L, 3L, 2L);

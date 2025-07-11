@@ -42,9 +42,20 @@ public class HotArticleListRepository {
         return KEY_FORMAT.formatted(dateStr);
     }
 
+    // TODO. 제거
     public List<Long> readAll(LocalDateTime dateTime) {
         return redisTemplate.opsForZSet()
                 .reverseRange(generateKey(dateTime), 0, -1)
+                .stream()
+                .peek(v -> log.info("[HotArticleListRepository.readAll] articleId = {}", v))
+                .map(Long::valueOf)
+                .toList();
+    }
+
+    // TODO 전환
+    public List<Long> readAll(String dateStr) {
+        return redisTemplate.opsForZSet()
+                .reverseRange(generateKey(dateStr), 0, -1)
                 .stream()
                 .peek(v -> log.info("[HotArticleListRepository.readAll] articleId = {}", v))
                 .map(Long::valueOf)
