@@ -1,6 +1,6 @@
 package com.example.hotarticle.client;
 
-import jakarta.annotation.PostConstruct;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,19 +12,14 @@ import java.time.LocalDateTime;
 
 @Slf4j
 @Component
-@RequiredArgsConstructor
 public class ArticleClient {
-    private RestClient restClient;
+    private final RestClient restClient;
 
-    @Value("${endpoints.board-article-service.url}")
-    private String articleServiceUrl;
-
-    @PostConstruct
-    void init() {
-        this.restClient = RestClient.create(articleServiceUrl);
+    public ArticleClient(RestClient.Builder builder, @Value("${endpoints.board-article-service.url}") String articleServiceUrl) {
+        this.restClient = builder.baseUrl(articleServiceUrl).build();
     }
 
-    public ArticleResponse of(Long articleId) {
+    public ArticleResponse read(Long articleId) {
         try {
             return restClient.get()
                     .uri("/v1/article/{articleId}", articleId)
@@ -37,6 +32,7 @@ public class ArticleClient {
     }
 
     @Getter
+    @AllArgsConstructor
     public static class ArticleResponse {
         private Long articleId;
         private String title;
