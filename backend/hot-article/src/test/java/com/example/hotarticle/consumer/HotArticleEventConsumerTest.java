@@ -5,7 +5,6 @@ import com.example.event.EventPayload;
 import com.example.event.EventType;
 import com.example.event.paylod.ArticleCreatedEventPayload;
 import com.example.hotarticle.service.HotArticleService;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -34,7 +33,7 @@ class HotArticleEventConsumerTest {
     ArgumentCaptor<Event<EventPayload>> eventCaptor;
 
     @Test
-    void listener() throws JsonProcessingException {
+    void listener() {
         Long articleId = 1L;
         LocalDateTime now = LocalDateTime.now();
         ArticleCreatedEventPayload payload
