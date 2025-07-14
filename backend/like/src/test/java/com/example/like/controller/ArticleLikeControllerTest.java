@@ -4,6 +4,7 @@ import com.example.like.entity.ArticleLike;
 import com.example.like.entity.ArticleLikeCount;
 import com.example.like.repository.ArticleLikeCountRepository;
 import com.example.like.repository.ArticleLikeRepository;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,6 +13,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -42,6 +44,9 @@ class ArticleLikeControllerTest {
 
     @Autowired
     private ArticleLikeCountRepository articleLikeCountRepository;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     @BeforeEach
     void setUp() {
