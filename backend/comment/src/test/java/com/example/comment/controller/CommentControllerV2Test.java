@@ -6,6 +6,7 @@ import com.example.comment.repository.CommentRepositoryV2;
 import com.example.comment.service.request.CommentCreateRequestV2;
 import com.example.comment.service.response.CommentPageResponseV2;
 import com.example.comment.service.response.CommentResponseV2;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -46,6 +48,9 @@ class CommentControllerV2Test {
 
     @Autowired
     private CommentRepositoryV2 commentRepository;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     /*
        샘플 데이터 (1depth : 00000 ~ 00009, 2depth: 각 10개씩, 총 11 * 10 = 110개)

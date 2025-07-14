@@ -5,4 +5,6 @@ dependencies {
     runtimeOnly 'com.h2database:h2'
     implementation project(':backend:common:snowflake')
     implementation project(':backend:common:support')
+    implementation project(':backend:common:event')
+    implementation project(':backend:common:outbox-message-relay')
 }
