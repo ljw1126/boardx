@@ -3,6 +3,7 @@ spring:
     driver-class-name: org.h2.Driver
     username: sa
     password:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -12,3 +13,5 @@ spring:
       hibernate:
         format_sql: false
     defer-datasource-initialization: true
+  autoconfigure:
+    exclude: com.example.outboxmessagerelay.MessageRelayConfig

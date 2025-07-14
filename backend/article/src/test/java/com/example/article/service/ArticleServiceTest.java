@@ -7,6 +7,7 @@ import com.example.article.service.request.ArticleCreateRequest;
 import com.example.article.service.request.ArticleUpdateRequest;
 import com.example.article.service.response.ArticlePageResponse;
 import com.example.article.service.response.ArticleResponse;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.example.snowflake.Snowflake;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,9 +39,11 @@ class ArticleServiceTest {
     @Mock
     private BoardArticleCountRepository boardArticleCountRepository;
 
+    @Mock
+    private OutboxEventPublisher outboxEventPublisher;
+
     @InjectMocks
     private ArticleService articleService;
-
 
     @Test
     void create() {
@@ -58,6 +61,7 @@ class ArticleServiceTest {
                 .containsExactly(article.getTitle(), article.getContent());
 
         verify(boardArticleCountRepository, never()).save(any());
+        verify(outboxEventPublisher, times(1)).publish(any(), any(), anyLong());
     }
 
     @Test
@@ -76,6 +80,7 @@ class ArticleServiceTest {
                 .containsExactly(article.getTitle(), article.getContent());
 
         verify(boardArticleCountRepository, times(1)).save(any());
+        verify(outboxEventPublisher, times(1)).publish(any(), any(), anyLong());
     }
 
     @Test
@@ -132,7 +137,7 @@ class ArticleServiceTest {
 
         assertThat(result).extracting(ArticleResponse::getArticleId, ArticleResponse::getTitle, ArticleResponse::getContent)
                 .containsExactly(articleId, title, content);
-
+        verify(outboxEventPublisher, times(1)).publish(any(), any(), anyLong());
     }
 
     @Test
@@ -146,6 +151,7 @@ class ArticleServiceTest {
 
         verify(articleRepository).delete(any());
         verify(boardArticleCountRepository).decrease(anyLong());
+        verify(outboxEventPublisher, times(1)).publish(any(), any(), anyLong());
     }
 
     private static Article create(Long articleId) {
