@@ -1,5 +1,6 @@
 package com.example.view.service;
 
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.example.view.EmbeddedRedis;
 import com.example.view.entity.ArticleViewCount;
 import com.example.view.repository.ArticleViewCountBackUpRepository;
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Import;
 import org.springframework.data.redis.connection.RedisConnection;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -27,6 +29,9 @@ class ArticleViewServiceTest {
 
     @Autowired
     private ArticleViewCountBackUpRepository articleViewCountBackUpRepository;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     @BeforeEach
     void setUp() {
