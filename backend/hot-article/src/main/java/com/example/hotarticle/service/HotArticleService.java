@@ -19,7 +19,7 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class HotArticleService {
     private final ArticleClient articleClient;
-    private final List<EventHandler<EventPayload>> eventHandlers;
+    private final List<EventHandler> eventHandlers;
     private final HotArticleScoreUpdater hotArticleScoreUpdater;
     private final HotArticleListRepository hotArticleListRepository;
 

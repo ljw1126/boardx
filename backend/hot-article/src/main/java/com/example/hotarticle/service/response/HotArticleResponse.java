@@ -4,9 +4,11 @@ import com.example.hotarticle.client.ArticleClient;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
+@ToString
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
