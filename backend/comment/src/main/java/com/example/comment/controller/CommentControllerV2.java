@@ -61,4 +61,11 @@ public class CommentControllerV2 {
         commentService.delete(commentId);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/v2/comment/article/{articleId}/count")
+    public ResponseEntity<Long> count(
+            @PathVariable("articleId") Long articleId
+    ) {
+        return ResponseEntity.ok(commentService.count(articleId));
+    }
 }
