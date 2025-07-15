@@ -1,6 +1,8 @@
 package com.example.articleread.client;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -46,6 +48,8 @@ public class ArticleClient {
     // TODO. 페이징 목록 조회, 무한 스크롤 목록 조회 추가
 
     @Getter
+    @AllArgsConstructor
+    @NoArgsConstructor
     public static class ArticleResponse {
         private Long articleId;
         private String title;
