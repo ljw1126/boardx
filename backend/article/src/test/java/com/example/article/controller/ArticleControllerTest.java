@@ -5,6 +5,7 @@ import com.example.article.repository.ArticleRepository;
 import com.example.article.service.request.ArticleCreateRequest;
 import com.example.article.service.request.ArticleUpdateRequest;
 import com.example.article.service.response.ArticleResponse;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,6 +44,9 @@ class ArticleControllerTest {
 
     @Autowired
     private ArticleRepository articleRepository;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     @BeforeEach
     void setUp() {

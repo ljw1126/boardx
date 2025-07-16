@@ -2,11 +2,13 @@ package com.example.like.service;
 
 import com.example.like.entity.ArticleLikeCount;
 import com.example.like.repository.ArticleLikeCountRepository;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
@@ -28,6 +30,9 @@ class ArticleLikeServiceTest {
 
     @Autowired
     private PlatformTransactionManager transactionManager;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     @BeforeEach
     void setUp() {

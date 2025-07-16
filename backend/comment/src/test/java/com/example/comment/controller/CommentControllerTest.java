@@ -4,6 +4,7 @@ import com.example.comment.entity.Comment;
 import com.example.comment.repository.CommentRepository;
 import com.example.comment.service.request.CommentCreateRequest;
 import com.example.comment.service.response.CommentResponse;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -43,6 +45,9 @@ class CommentControllerTest {
 
     @Autowired
     private CommentRepository commentRepository;
+
+    @MockitoBean
+    private OutboxEventPublisher outboxEventPublisher;
 
     @BeforeEach
     void setUp() {

@@ -3,6 +3,7 @@ package com.example.like.controller;
 import com.example.like.service.ArticleLikeService;
 import com.example.like.service.response.ArticleLikeResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class ArticleLikeController {
@@ -29,6 +31,7 @@ public class ArticleLikeController {
             @PathVariable("articleId") Long articleId,
             @PathVariable("userId") Long userId
     ) {
+        log.info("ArticleLikeController like articleId = {}, userId = {}", articleId, userId);
         articleLikeService.like(articleId, userId);
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(null);

@@ -8,6 +8,10 @@ import com.example.comment.repository.CommentRepositoryV2;
 import com.example.comment.service.request.CommentCreateRequestV2;
 import com.example.comment.service.response.CommentPageResponseV2;
 import com.example.comment.service.response.CommentResponseV2;
+import com.example.event.EventType;
+import com.example.event.paylod.CommentCreatedEventPayload;
+import com.example.event.paylod.CommentDeletedEventPayload;
+import com.example.outboxmessagerelay.OutboxEventPublisher;
 import com.example.snowflake.Snowflake;
 import com.example.support.PageLimitCalculator;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +29,7 @@ public class CommentServiceV2 {
     private final Snowflake snowflake = new Snowflake();
     private final CommentRepositoryV2 commentRepository;
     private final ArticleCommentCountRepository articleCommentCountRepository;
+    private final OutboxEventPublisher outboxEventPublisher;
 
     public CommentResponseV2 create(CommentCreateRequestV2 request) {
         CommentV2 parent = findParent(request);
@@ -46,6 +51,20 @@ public class CommentServiceV2 {
         if(result == 0) {
             articleCommentCountRepository.save(ArticleCommentCount.of(request.getArticleId(), 1L));
         }
+
+        outboxEventPublisher.publish(
+                EventType.COMMENT_CREATED,
+                CommentCreatedEventPayload.builder()
+                        .commentId(saved.getCommentId())
+                        .content(saved.getContent())
+                        .articleId(saved.getArticleId())
+                        .writerId(saved.getWriterId())
+                        .deleted(saved.getDeleted())
+                        .createdAt(saved.getCreatedAt())
+                        .articleCommentCount(count(saved.getArticleId()))
+                        .build(),
+                saved.getArticleId()
+        );
 
         return CommentResponseV2.from(saved);
     }
@@ -92,6 +111,20 @@ public class CommentServiceV2 {
                     } else {
                         delete(comment);
                     }
+
+                    outboxEventPublisher.publish(
+                            EventType.COMMENT_DELETED,
+                            CommentDeletedEventPayload.builder()
+                                    .commentId(comment.getCommentId())
+                                    .content(comment.getContent())
+                                    .articleId(comment.getArticleId())
+                                    .writerId(comment.getWriterId())
+                                    .deleted(comment.getDeleted())
+                                    .createdAt(comment.getCreatedAt())
+                                    .articleCommentCount(count(comment.getArticleId()))
+                                    .build(),
+                            comment.getArticleId()
+                    );
                 });
     }
 
@@ -110,5 +143,12 @@ public class CommentServiceV2 {
                     .filter(not(this::hasChildren))
                     .ifPresent(this::delete);
         }
+    }
+
+    @Transactional(readOnly = true)
+    public Long count(Long articleId) {
+        return articleCommentCountRepository.findById(articleId)
+                .map(ArticleCommentCount::getCommentCount)
+                .orElse(0L);
     }
 }

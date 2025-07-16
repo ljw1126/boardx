@@ -5,6 +5,7 @@ import com.example.comment.service.request.CommentCreateRequestV2;
 import com.example.comment.service.response.CommentPageResponseV2;
 import com.example.comment.service.response.CommentResponseV2;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 // 열겨형 path 활용한 무한 depth 방식
+@Slf4j
 @RestController
 @RequiredArgsConstructor
 public class CommentControllerV2 {
@@ -25,6 +27,7 @@ public class CommentControllerV2 {
 
     @PostMapping("/v2/comment")
     public ResponseEntity<CommentResponseV2> create(@RequestBody CommentCreateRequestV2 request) {
+        log.info("CommentControllerV2 request = {}", request);
         CommentResponseV2 response = commentService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
