@@ -6,6 +6,8 @@ import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 @RequiredArgsConstructor
 public class ArticleIdListRepository {
@@ -19,7 +21,7 @@ public class ArticleIdListRepository {
             StringRedisConnection connection = (StringRedisConnection) action;
             String key = generateKey(boardId);
             connection.zAdd(key, 0, toPaddedString(articleId));
-            connection.zRemRange(key, 0, - limit - 1);
+            connection.zRemRange(key, 0, - limit - 1); // ?
             return null;
         });
     }
@@ -28,7 +30,15 @@ public class ArticleIdListRepository {
         redisTemplate.opsForZSet().remove(generateKey(boardId), toPaddedString(articleId));
     }
 
-    // TODO. 페이징 방식, 무한 스크롤 방식
+    public List<Long> readAll(Long boardId, Long offset, Long limit) {
+        return redisTemplate.opsForZSet()
+                .reverseRange(generateKey(boardId), offset, offset + limit - 1)
+                .stream()
+                .map(Long::valueOf)
+                .toList();
+    }
+
+    // TODO. 무한 스크롤 방식
 
     private String generateKey(Long boardId) {
         return KEY_FORMAT.formatted(boardId);

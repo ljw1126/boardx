@@ -77,4 +77,28 @@ class ArticleClientTest {
 
         assertThat(count).isEqualTo(1000L);
     }
+
+    @Test
+    void readAll() {
+        Long boardId = 1L;
+        Long page = 1L;
+        Long pageSize = 10L;
+
+        String expectedJson = """
+        {
+          "articles": [],
+          "count": 0
+        }
+        """;
+
+        mockServer.expect(requestTo(baseUrl + "/v1/article?boardId=%s&page=%s&pageSize=%s".formatted(boardId, page, pageSize)))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(expectedJson, MediaType.APPLICATION_JSON));
+
+        ArticleClient.ArticlePageResponse response = articleClient.readAll(boardId, page, pageSize);
+
+        assertThat(response.getArticles()).isEmpty();
+        assertThat(response.getCount()).isEqualTo(0L);
+    }
+
 }

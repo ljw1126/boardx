@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -45,7 +46,19 @@ public class ArticleClient {
         }
     }
 
-    // TODO. 페이징 목록 조회, 무한 스크롤 목록 조회 추가
+    public ArticlePageResponse readAll(Long boardId, Long page, Long pageSize) {
+        try {
+            return restClient.get()
+                    .uri("/v1/article?boardId=%s&page=%s&pageSize=%s".formatted(boardId, page, pageSize))
+                    .retrieve()
+                    .body(ArticlePageResponse.class);
+        } catch (Exception e) {
+            log.error("[]", boardId, page, pageSize);
+            return ArticlePageResponse.EMPTY;
+        }
+    }
+
+    // TODO. 무한 스크롤 목록 조회 추가
 
     @Getter
     @AllArgsConstructor
@@ -60,4 +73,13 @@ public class ArticleClient {
         private LocalDateTime modifiedAt;
     }
 
+    @Getter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ArticlePageResponse {
+        private List<ArticleResponse> articles;
+        private Long count;
+
+        public static ArticlePageResponse EMPTY = new ArticlePageResponse(List.of(), 0L);
+    }
 }

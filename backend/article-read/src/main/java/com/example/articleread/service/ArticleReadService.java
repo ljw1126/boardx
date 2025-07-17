@@ -9,6 +9,7 @@ import com.example.articleread.repository.ArticleQueryModel;
 import com.example.articleread.repository.ArticleQueryModelRepository;
 import com.example.articleread.repository.BoardArticleCountRepository;
 import com.example.articleread.service.eventhandler.EventHandler;
+import com.example.articleread.service.response.ArticleReadPageResponse;
 import com.example.articleread.service.response.ArticleReadResponse;
 import com.example.event.Event;
 import com.example.event.EventPayload;
@@ -18,6 +19,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -65,6 +68,51 @@ public class ArticleReadService {
         log.info("[ArticleReadService.fetch] fetch data. articleId={}, isPresent={}", articleId, articleQueryModelOptional.isPresent());
 
         return articleQueryModelOptional;
+    }
+
+    public ArticleReadPageResponse readAll(Long boardId, Long page, Long pageSize) {
+        List<Long> articleIds = readAllArticleIds(boardId, page, pageSize);
+        List<ArticleReadResponse> articles = readAll(articleIds);
+        Long articleCount = articleCount(boardId);
+
+        return ArticleReadPageResponse.of(articles, articleCount);
+    }
+
+    private List<ArticleReadResponse> readAll(List<Long> articleIds) {
+        Map<Long, ArticleQueryModel> articleQueryModelMap = articleQueryModelRepository.readAll(articleIds);
+        return articleIds.stream()
+                .map(articleId -> articleQueryModelMap.containsKey(articleId) ? articleQueryModelMap.get(articleId) : fetch(articleId).orElse(null))
+                .filter(Objects::nonNull)
+                .map(articleQueryModel -> ArticleReadResponse.of(articleQueryModel, viewClient.count(articleQueryModel.getArticleId())))
+                .toList();
+    }
+
+    private List<Long> readAllArticleIds(Long boardId, Long page, Long pageSize) {
+        List<Long> articleIds = articleIdListRepository.readAll(boardId, (page - 1) * pageSize, pageSize);
+        if(pageSize == articleIds.size()) {
+            log.info("[ArticleReadService.readAllArticleIds] return redis data");
+            return articleIds;
+        }
+
+        log.info("[ArticleReadService.readAllArticleIds] return origin data");
+        return articleClient.readAll(boardId, page, pageSize)
+                .getArticles()
+                .stream()
+                .map(ArticleClient.ArticleResponse::getArticleId)
+                .toList();
+    }
+
+    private Long articleCount(Long boardId) {
+        Long result = boardArticleCountRepository.read(boardId);
+        if(result != null) {
+            log.info("[ArticleReadService.articleCount] return redis data");
+            return result;
+        }
+
+        log.info("[ArticleReadService.articleCount] return origin data");
+        Long articleCount = articleClient.count(boardId);
+        boardArticleCountRepository.save(boardId, articleCount);
+        return articleCount;
     }
 
 }
