@@ -88,6 +88,29 @@ class ArticleIdListRepositoryTest {
         assertThat(articleIds).containsExactly(10L, 9L, 8L, 7L, 6L); // 내림차순 조회
     }
 
+    @Test
+    void readAllInfiniteScroll() {
+        Long boardId = 1L;
+        Long lastArticleId = null;
+        Long limit = 5L;
+
+        List<Long> articleIds = articleIdListRepository.readAllInfiniteScroll(boardId, lastArticleId, limit);
+
+        assertThat(articleIds).hasSize(5);
+        assertThat(articleIds).containsExactly(10L, 9L, 8L, 7L, 6L);
+    }
+
+    @Test
+    void readAllInfiniteScrollWhenOverRange() {
+        Long boardId = 1L;
+        Long lastArticleId = 6L; // 마지막 articleIds (가장 오래 된)
+        Long limit = 5L;
+
+        List<Long> articleIds = articleIdListRepository.readAllInfiniteScroll(boardId, lastArticleId, limit);
+
+        assertThat(articleIds).isEmpty();
+    }
+
     private String generateKey(Long boardId) {
         return "article-read::board::%s::article-list".formatted(boardId);
     }

@@ -44,7 +44,7 @@ class ArticleReadControllerTest {
     }
 
     @Test
-    void readAllByPaging() throws Exception {
+    void readAll() throws Exception {
         Long boardId = 1L;
         Long page = 1L;
         Long pageSize = 10L;
@@ -62,5 +62,21 @@ class ArticleReadControllerTest {
                 );
     }
 
+
+    @Test
+    void readAllInfiniteScroll() throws Exception {
+        Long boardId = 1L;
+        Long lastArticleId = 156358300376981504L; // 마지막 게시글 (가장 오래된)
+        Long pageSize = 10L;
+
+        when(articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize))
+                .thenReturn(Collections.emptyList());
+
+        mockMvc.perform(get("/v1/article/infinite-scroll?boardId=%s&lastArticleId=%s&pageSize=%s".formatted(boardId, lastArticleId, pageSize)))
+                .andExpectAll(
+                        status().isOk(),
+                        jsonPath("$.size()").value(0L)
+                );
+    }
 
 }

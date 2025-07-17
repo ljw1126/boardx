@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.client.MockRestServiceServer;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -99,6 +100,25 @@ class ArticleClientTest {
 
         assertThat(response.getArticles()).isEmpty();
         assertThat(response.getCount()).isEqualTo(0L);
+    }
+
+    @Test
+    void readAllInfiniteScroll() {
+        Long boardId = 1L;
+        Long lastArticleId = 156358300376981504L; // 마지막 게시글 (가장 오래된)
+        Long pageSize = 10L;
+
+        String expectedJson = """
+        []
+        """;
+
+        mockServer.expect(requestTo(baseUrl + "/v1/article/infinite-scroll?boardId=%s&lastArticleId=%s&pageSize=%s".formatted(boardId, lastArticleId, pageSize)))
+                .andExpect(method(HttpMethod.GET))
+                .andRespond(withSuccess(expectedJson, MediaType.APPLICATION_JSON));
+
+        List<ArticleClient.ArticleResponse> responses = articleClient.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
+
+        assertThat(responses).isEmpty();
     }
 
 }

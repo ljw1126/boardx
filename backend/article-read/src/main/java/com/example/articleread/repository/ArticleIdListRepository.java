@@ -1,6 +1,8 @@
 package com.example.articleread.repository;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Range;
+import org.springframework.data.redis.connection.Limit;
 import org.springframework.data.redis.connection.StringRedisConnection;
 import org.springframework.data.redis.core.RedisCallback;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -38,7 +40,18 @@ public class ArticleIdListRepository {
                 .toList();
     }
 
-    // TODO. 무한 스크롤 방식
+    public List<Long> readAllInfiniteScroll(Long boardId, Long lastArticleId, Long limit) {
+        return redisTemplate.opsForZSet()
+                .reverseRangeByLex(
+                        generateKey(boardId),
+                        lastArticleId == null
+                                ? Range.unbounded()
+                                : Range.leftUnbounded(Range.Bound.exclusive(toPaddedString(lastArticleId))),
+                        Limit.limit().count(limit.intValue())
+                ).stream()
+                .map(Long::valueOf)
+                .toList();
+    }
 
     private String generateKey(Long boardId) {
         return KEY_FORMAT.formatted(boardId);

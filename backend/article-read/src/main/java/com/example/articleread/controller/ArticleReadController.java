@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
+
 @RestController
 @RequiredArgsConstructor
 public class ArticleReadController {
@@ -27,6 +29,15 @@ public class ArticleReadController {
             @RequestParam(value = "pageSize", defaultValue = "10") Long pageSize
     ) {
         return ResponseEntity.ok(articleReadService.readAll(boardId, page, pageSize));
+    }
+
+    @GetMapping("/v1/article/infinite-scroll")
+    public ResponseEntity<List<ArticleReadResponse>> readAllInfiniteScroll(
+            @RequestParam("boardId") Long boardId,
+            @RequestParam(value = "lastArticleId", required = false) Long lastArticleId,
+            @RequestParam("pageSize") Long pageSize
+    ) {
+        return ResponseEntity.ok(articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize));
     }
 
 

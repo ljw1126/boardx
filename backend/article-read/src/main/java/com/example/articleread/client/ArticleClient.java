@@ -5,10 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -53,12 +55,26 @@ public class ArticleClient {
                     .retrieve()
                     .body(ArticlePageResponse.class);
         } catch (Exception e) {
-            log.error("[]", boardId, page, pageSize);
+            log.error("[ArticlePageResponse.readAll] boardId = {}, page = {}, pageSize = {}", boardId, page, pageSize);
             return ArticlePageResponse.EMPTY;
         }
     }
 
-    // TODO. 무한 스크롤 목록 조회 추가
+    public List<ArticleResponse> readAllInfiniteScroll(Long boardId, Long lastArticleId, Long pageSize) {
+        String uri = lastArticleId == null
+                ? "/v1/article/infinite-scroll?boardId=%s&pageSize=%s".formatted(boardId, pageSize)
+                : "/v1/article/infinite-scroll?boardId=%s&lastArticleId=%s&pageSize=%s".formatted(boardId, lastArticleId, pageSize);
+
+        try {
+            return restClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .body(new ParameterizedTypeReference<>() {});
+        } catch (Exception e) {
+            log.error("[ArticlePageResponse.readAllInfiniteScroll] boardId = {}, lastArticleId = {}, pageSize = {}", boardId, lastArticleId, pageSize);
+            return Collections.emptyList();
+        }
+    }
 
     @Getter
     @AllArgsConstructor

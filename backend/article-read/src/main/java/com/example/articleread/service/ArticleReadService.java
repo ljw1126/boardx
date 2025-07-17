@@ -115,4 +115,23 @@ public class ArticleReadService {
         return articleCount;
     }
 
+    public List<ArticleReadResponse> readAllInfiniteScroll(Long boardId, Long lastArticleId, Long pageSize) {
+        List<Long> articleIds = readAllInfiniteScrollArticleIds(boardId, lastArticleId, pageSize);
+        return readAll(articleIds);
+    }
+
+    private List<Long> readAllInfiniteScrollArticleIds(Long boardId, Long lastArticleId, Long pageSize) {
+        List<Long> articleIds = articleIdListRepository.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
+        if(pageSize == articleIds.size()) {
+            log.info("[ArticleReadService.readAllInfiniteScrollArticleIds] return redis data.");
+            return articleIds;
+        }
+
+        log.info("[ArticleReadService.readAllInfiniteScrollArticleIds] return origin data.");
+        return articleClient.readAllInfiniteScroll(boardId, lastArticleId, pageSize)
+                .stream()
+                .map(ArticleClient.ArticleResponse::getArticleId)
+                .toList();
+    }
+
 }

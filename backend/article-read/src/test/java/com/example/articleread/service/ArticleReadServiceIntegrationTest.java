@@ -28,6 +28,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
@@ -184,7 +186,7 @@ class ArticleReadServiceIntegrationTest {
         assertThat(articleReadPageResponse.getArticleCount()).isEqualTo(30L);
     }
 
-    @DisplayName("페이징 목록 조회시 개시글이 없는 경우 빈 배열을 반환한다")
+    @DisplayName("페이징 목록 조회시 게시글이 없는 경우 빈 컬렉션을 반환한다")
     @Test
     void readAllWhenInvalidPaging() {
         Long boardId = 1L;
@@ -200,6 +202,32 @@ class ArticleReadServiceIntegrationTest {
         assertThat(articleReadPageResponse.getArticleCount()).isEqualTo(30L);
     }
 
+    @DisplayName("무한 스크롤 방식으로 목록 조회한다")
+    @Test
+    void readAllInfiniteScroll() {
+        Long boardId = 1L;
+        Long lastArticleId = null;
+        Long pageSize = 10L;
 
+        List<ArticleReadResponse> response = articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
+
+        assertThat(response).hasSize(10);
+        assertThat(response.get(0).getArticleId()).isEqualTo(156358300376981504L + 29L);
+    }
+
+    @DisplayName("무한 스크롤 목록 조회시 게시글이 없는 경우 빈 컬렉션을 반환한다")
+    @Test
+    void readAllInfiniteScrollWhenEmpty() {
+        Long boardId = 1L;
+        Long lastArticleId = 156358300376981504L; // 최신순 정렬시 가장 처음 등록된 게시글 id
+        Long pageSize = 10L;
+
+        when(articleClient.readAllInfiniteScroll(boardId, lastArticleId, pageSize))
+                .thenReturn(Collections.emptyList());
+
+        List<ArticleReadResponse> response = articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
+
+        assertThat(response).hasSize(0);
+    }
 
 }
