@@ -1,5 +1,6 @@
 package com.example.articleread.client;
 
+import com.example.articleread.cache.OptimizedCacheable;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -14,7 +15,7 @@ public class ViewClient {
         this.restClient = builder.baseUrl(baseUrl).build();
     }
 
-    // TODO. cache, request collapsing
+    @OptimizedCacheable(type = "articleViewCount", ttlSeconds = 1)
     public Long count(Long articleId) {
         try {
             return restClient.get()
