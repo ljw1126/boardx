@@ -13,6 +13,10 @@ import com.example.articleread.repository.ArticleQueryModelRepository;
 import com.example.articleread.repository.BoardArticleCountRepository;
 import com.example.articleread.service.response.ArticleReadPageResponse;
 import com.example.articleread.service.response.ArticleReadResponse;
+import com.example.event.Event;
+import com.example.event.EventPayload;
+import com.example.event.EventType;
+import com.example.event.paylod.ArticleLikedEventPayload;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -228,6 +232,24 @@ class ArticleReadServiceIntegrationTest {
         List<ArticleReadResponse> response = articleReadService.readAllInfiniteScroll(boardId, lastArticleId, pageSize);
 
         assertThat(response).hasSize(0);
+    }
+
+    @Test
+    void handleEventWhenArticleLikeEvent() {
+        Long articleId = 156358300376981504L;
+        EventType eventType = EventType.ARTICLE_LIKED;
+        Long articleLikeCount = 100L;
+        ArticleLikedEventPayload payload = new ArticleLikedEventPayload(null, articleId, 1L, null, articleLikeCount);
+        Event<EventPayload> event = Event.of(articleId, eventType, payload);
+
+        articleReadService.handleEvent(event);
+
+        Optional<ArticleQueryModel> actual = articleQueryModelRepository.read(articleId);
+
+        assertThat(actual.isPresent()).isTrue();
+        ArticleQueryModel articleQueryModel = actual.get();
+        assertThat(articleQueryModel.getArticleId()).isEqualTo(articleId);
+        assertThat(articleQueryModel.getArticleLikeCount()).isEqualTo(articleLikeCount);
     }
 
 }
