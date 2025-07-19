@@ -3,3 +3,24 @@ server:
 spring:
   application:
     name: article-read-service
+  data:
+    redis:
+      host: localhost
+      port: 6379
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: board-article-read-service
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      enable-auto-commit: false
+      auto-offset-reset: earliest
+endpoints:
+  board-article-service:
+    url: http://localhost:9000
+  board-comment-service:
+    url: http://localhost:9001
+  board-like-service:
+    url: http://localhost:9002
+  board-view-service:
+    url: http://localhost:9003
