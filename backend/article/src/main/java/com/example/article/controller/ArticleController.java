@@ -61,4 +61,9 @@ public class ArticleController {
     ) {
         return ResponseEntity.ok(articleService.readAllInfiniteScroll(boardId, pageSize, lastArticleId));
     }
+
+    @GetMapping("/v1/article/board/{boardId}/count")
+    public ResponseEntity<Long> count(@PathVariable Long boardId) {
+        return ResponseEntity.ok(articleService.count(boardId));
+    }
 }
